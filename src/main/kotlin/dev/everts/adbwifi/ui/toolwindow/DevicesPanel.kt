@@ -54,6 +54,9 @@ class DevicesPanel : SimpleToolWindowPanel(true, true), UiDataProvider, Disposab
         }
     }).apply { isVisible = false }
 
+    /** Tras dar el permiso: adb solo lo recibe al reiniciar Android Studio. */
+    private val restartBanner = LocalNetworkBanner.createRestart().apply { isVisible = false }
+
     init {
         table.setShowGrid(false)
         table.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
@@ -87,7 +90,7 @@ class DevicesPanel : SimpleToolWindowPanel(true, true), UiDataProvider, Disposab
         setToolbar(toolbar.component)
         setContent(
             BorderLayoutPanel()
-                .addToTop(networkBanner)
+                .addToTop(BorderLayoutPanel().addToTop(networkBanner).addToBottom(restartBanner))
                 .addToCenter(ScrollPaneFactory.createScrollPane(table, true))
                 .addToBottom(statusLabel),
         )
@@ -113,6 +116,7 @@ class DevicesPanel : SimpleToolWindowPanel(true, true), UiDataProvider, Disposab
             else -> AdbWifiBundle.message("devices.summary", state.entries.count { it.status == EntryStatus.CONNECTED })
         }
         networkBanner.isVisible = state.localNetworkBlocked
+        restartBanner.isVisible = state.restartRequired && !state.localNetworkBlocked
     }
 
     private fun invokeAction(id: String) {

@@ -30,6 +30,7 @@ enum class Finding {
     HOST_DOWN,
     LOCAL_NETWORK_BLOCKED,
     STUDIO_NO_LOCAL_NETWORK,
+    STUDIO_RESTART_REQUIRED,
 }
 
 /** Reparaciones que la UI puede ofrecer junto a un resultado. */
@@ -39,6 +40,7 @@ enum class Fix {
     RESTART_ADB_WITH_MDNS,
     PAIR_AGAIN,
     OPEN_SDK_MANAGER,
+    RESTART_STUDIO,
 }
 
 data class CheckResult(

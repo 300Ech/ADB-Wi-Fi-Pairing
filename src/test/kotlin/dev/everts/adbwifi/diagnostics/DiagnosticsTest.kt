@@ -105,6 +105,21 @@ class DiagnosticsTest {
     }
 
     @Test
+    fun `pending android studio restart is reported with a restart fix`() = runBlocking {
+        val runner = DiagnosticsRunner(
+            gatewayProvider = { gateway },
+            network = probe(ProbeResult.REFUSED),
+            rejectedSerials = { emptySet() },
+            isMac = true,
+        )
+
+        val restart = runner.run(AdbWifiState(restartRequired = true), endpoint)
+            .single { it.finding == Finding.STUDIO_RESTART_REQUIRED }
+
+        assertEquals(listOf(Fix.RESTART_STUDIO), restart.fixes)
+    }
+
+    @Test
     fun `server log without rejections`() {
         val log = "10-15 10:12:43.954 10310 137121 I adb     : tls_connection.cpp:298 [client]: Handshake succeeded.\n"
         assertTrue(AdbServerLog.rejections(log, 2026).isEmpty())

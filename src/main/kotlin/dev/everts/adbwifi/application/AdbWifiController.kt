@@ -51,6 +51,8 @@ data class AdbWifiState(
     val busyKeys: Set<String> = emptySet(),
     /** macOS no deja a Android Studio usar la red local: hay que darle el permiso (una vez). */
     val localNetworkBlocked: Boolean = false,
+    /** El permiso ya está, pero adb no lo tendrá hasta reiniciar Android Studio. */
+    val restartRequired: Boolean = false,
     /** Último fallo de conexión por fila; `AUTHENTICATION_FAILED` significa "volver a emparejar". */
     val failures: Map<String, AdbFailureReason> = emptyMap(),
     val loaded: Boolean = false,
@@ -102,6 +104,9 @@ class AdbWifiController(
 
     @Volatile
     private var localNetworkBlocked = false
+
+    @Volatile
+    private var restartRequired = false
     private var lastNetworkCheck: Duration? = null
 
     /** Arranca el ciclo de refresco y reconexión. Llamarlo varias veces no hace nada más. */
@@ -264,17 +269,36 @@ class AdbWifiController(
      * @param force comprueba ya, sin esperar al intervalo (botón "Comprobar de nuevo").
      */
     suspend fun checkLocalNetwork(force: Boolean = false) {
+        var firstCheck = false
         val wasBlocked = networkLock.withLock {
             val now = probes.now()
             val interval = if (localNetworkBlocked) BLOCKED_RECHECK_INTERVAL else NETWORK_CHECK_INTERVAL
             if (!force && lastNetworkCheck?.let { now - it < interval } == true) return
+            firstCheck = lastNetworkCheck == null
             lastNetworkCheck = now
             val previous = localNetworkBlocked
             localNetworkBlocked = probes.localNetworkBlocked() == true
             _state.update { it.copy(localNetworkBlocked = localNetworkBlocked) }
             previous
         }
-        if (wasBlocked && !localNetworkBlocked) restartAdb()
+        val studioHasNetwork = !localNetworkBlocked && !restartRequired
+        if (studioHasNetwork && (wasBlocked || firstCheck)) checkAdbNetwork(wasBlocked)
+    }
+
+    /**
+     * Android Studio ya tiene red; falta saber si adb también. Un servidor arrancado sin permiso sigue
+     * ciego, así que se reinicia; si aun así no llega a la red, macOS solo se lo dará a adb cuando se
+     * reinicie Android Studio, y la UI lo pide con un botón.
+     */
+    private suspend fun checkAdbNetwork(permissionJustGranted: Boolean) {
+        if (permissionJustGranted) restartAdb()
+        var blocked = probes.adbNetworkBlocked() == true
+        if (blocked && !permissionJustGranted) {
+            restartAdb()
+            blocked = probes.adbNetworkBlocked() == true
+        }
+        restartRequired = blocked
+        _state.update { it.copy(restartRequired = blocked) }
     }
 
     /**

@@ -30,6 +30,9 @@ data class ControllerSettings(
  *   (el cliente solo informa `protocol fault`).
  * @param localNetworkBlocked si macOS impide a Android Studio usar la red local (`null` si no se sabe).
  *   Sin ese permiso, ni Android Studio ni el servidor adb que lanza ven ni alcanzan teléfonos por Wi-Fi.
+ * @param adbNetworkBlocked si el servidor adb no llega a la red local aunque Android Studio sí. Pasa tras
+ *   dar el permiso: macOS lo aplica a Android Studio enseguida, pero a los procesos que lanza solo al
+ *   reiniciarlo. `null` si no se sabe.
  * @param reachable comprobación rápida (TCP) antes de reintentar una dirección guardada que no se anuncia
  *   por mDNS; evita esperar el timeout de `adb connect` por cada teléfono apagado.
  */
@@ -41,6 +44,7 @@ class ControllerProbes(
     val pairingFailure: (AdbEndpoint, LocalDateTime) -> AdbFailureReason? = { _, _ -> null },
     val wallClock: () -> LocalDateTime = LocalDateTime::now,
     val localNetworkBlocked: suspend () -> Boolean? = { null },
+    val adbNetworkBlocked: suspend () -> Boolean? = { null },
 )
 
 /** Hechos que merecen avisar al usuario aunque no esté mirando el tool window. */

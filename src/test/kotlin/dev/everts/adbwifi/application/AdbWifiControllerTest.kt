@@ -46,6 +46,9 @@ class AdbWifiControllerTest {
     private var studioBlocked: Boolean? = false
     private var networkChecks = 0
 
+    /** Respuestas sucesivas a "¿adb llega a la red?"; vacía = no se sabe. */
+    private val adbBlocked = mutableListOf<Boolean?>()
+
     private val controller = AdbWifiController(
         scope = scope,
         gatewayProvider = { if (adbAvailable) gateway else throw AdbNotFoundException(emptyList()) },
@@ -57,6 +60,7 @@ class AdbWifiControllerTest {
             reachable = { phoneReachable },
             pairingFailure = { _, _ -> loggedPairingFailure },
             localNetworkBlocked = { networkChecks++; studioBlocked },
+            adbNetworkBlocked = { adbBlocked.removeFirstOrNull() },
         ),
     )
 
@@ -179,6 +183,30 @@ class AdbWifiControllerTest {
 
         assertFalse(controller.state.value.localNetworkBlocked)
         assertEquals(listOf("restart {}"), gateway.calls, "el servidor arrancado sin permiso sigue ciego")
+    }
+
+    @Test
+    fun `adb still blocked after the permission asks for an android studio restart`() = runBlocking {
+        studioBlocked = true
+        controller.checkLocalNetwork()
+
+        studioBlocked = false
+        adbBlocked += true
+        controller.checkLocalNetwork(force = true)
+
+        assertTrue(controller.state.value.restartRequired)
+        assertFalse(controller.state.value.localNetworkBlocked)
+        assertEquals(listOf("restart {}"), gateway.calls)
+    }
+
+    @Test
+    fun `adb started without network before this session is restarted once and works`() = runBlocking {
+        adbBlocked += listOf(true, false)
+
+        controller.checkLocalNetwork()
+
+        assertFalse(controller.state.value.restartRequired)
+        assertEquals(listOf("restart {}"), gateway.calls)
     }
 
     @Test

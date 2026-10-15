@@ -27,8 +27,11 @@ class ConnectDialog(project: Project?, endpoint: AdbEndpoint? = null) : AdbOpera
     }
 
     override fun createCenterPanel(): JComponent = panel {
-        if (AdbWifiService.getInstance().controller.state.value.localNetworkBlocked) {
+        val network = AdbWifiService.getInstance().controller.state.value
+        if (network.localNetworkBlocked) {
             row { cell(LocalNetworkBanner.create()).align(AlignX.FILL) }
+        } else if (network.restartRequired) {
+            row { cell(LocalNetworkBanner.createRestart()).align(AlignX.FILL) }
         }
         row {
             text(AdbWifiBundle.message("connect.instructions")).align(AlignX.FILL)

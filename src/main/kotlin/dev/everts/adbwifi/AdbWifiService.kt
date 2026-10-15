@@ -7,6 +7,7 @@ import dev.everts.adbwifi.adb.AdbGateway
 import dev.everts.adbwifi.adb.AdbLocator
 import dev.everts.adbwifi.adb.AdbTimeouts
 import dev.everts.adbwifi.adb.CliAdbGateway
+import dev.everts.adbwifi.adb.cannotReachLocalNetwork
 import dev.everts.adbwifi.adb.bonjour.BonjourAssistedGateway
 import dev.everts.adbwifi.adb.bonjour.DnsSdBrowser
 import dev.everts.adbwifi.application.AdbWifiController
@@ -16,6 +17,7 @@ import dev.everts.adbwifi.diagnostics.DiagnosticsRunner
 import dev.everts.adbwifi.diagnostics.JvmNetworkProbe
 import dev.everts.adbwifi.diagnostics.ProbeResult
 import dev.everts.adbwifi.diagnostics.localNetworkBlocked
+import dev.everts.adbwifi.domain.AdbEndpoint
 import dev.everts.adbwifi.persistence.AdbWifiSettings
 import dev.everts.adbwifi.persistence.PairedDevicesState
 import dev.everts.adbwifi.ui.notifications.AdbWifiNotifications
@@ -50,6 +52,10 @@ class AdbWifiService(private val scope: CoroutineScope) {
             pairingFailure = AdbServerLog::currentPairingFailure,
             localNetworkBlocked = {
                 if (SystemInfo.isMac) JvmNetworkProbe.localNetworkBlocked(REACHABILITY_TIMEOUT) else false
+            },
+            adbNetworkBlocked = {
+                val router = if (SystemInfo.isMac) JvmNetworkProbe.defaultGateway() else null
+                router?.let { currentGateway().cannotReachLocalNetwork(AdbEndpoint(it, ROUTER_PROBE_PORT)) }
             },
         ),
     )
@@ -86,6 +92,9 @@ class AdbWifiService(private val scope: CoroutineScope) {
 
     companion object {
         private val REACHABILITY_TIMEOUT = 1500.milliseconds
+
+        /** Puerto de adb clásico: casi ningún router lo tiene abierto, así que responde "refused" al instante. */
+        private const val ROUTER_PROBE_PORT = 5555
 
         fun getInstance(): AdbWifiService = service()
     }

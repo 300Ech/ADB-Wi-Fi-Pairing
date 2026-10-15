@@ -97,6 +97,7 @@ class DiagnosticsPanel(private val project: Project) : BorderLayoutPanel(), Disp
         val service = AdbWifiService.getInstance()
         when (fix) {
             Fix.OPEN_LOCAL_NETWORK_SETTINGS -> LocalNetworkBanner.openSettings()
+            Fix.RESTART_STUDIO -> LocalNetworkBanner.restartIde()
             Fix.RESTART_ADB, Fix.RESTART_ADB_WITH_MDNS -> {
                 val confirmed = Messages.showYesNoDialog(
                     project,

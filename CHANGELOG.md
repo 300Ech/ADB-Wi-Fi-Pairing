@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-10-15
+
+### Fixed
+
+- After you grant the macOS Local Network permission, adb only gets it once Android Studio restarts.
+  The plugin now checks that adb itself reaches the network and, if it does not, asks for that restart
+  with a "Restart Android Studio" button instead of leaving devices silently disconnected.
+
 ## [0.1.1] - 2026-10-15
 
 ### Fixed
