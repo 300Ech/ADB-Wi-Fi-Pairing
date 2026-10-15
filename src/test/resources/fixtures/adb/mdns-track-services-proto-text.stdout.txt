@@ -1,0 +1,19 @@
+
+Services:
+tls {
+  service {
+    instance: "adb-58181FDCR0065F-XeVEcV"
+    service: "_adb-tls-connect._tcp"
+    ipv4: "192.168.0.16"
+    ipv6: "fd00:f0f2:490d:7dd2:20d9:deff:fe1c:8b12"
+    ipv6: "fe80:0:0:0:20d9:deff:fe1c:8b12"
+    port: 40073
+    product_model: "Pixel 10"
+    build_version_sdk_full: "37.1"
+    given_name: "Everts\' Phone"
+    serial: "58181FDCR0065F"
+    mdns_service_version: "2.1"
+    hostname: "Android_84GKWQPE.local"
+  }
+  known_device: true
+}

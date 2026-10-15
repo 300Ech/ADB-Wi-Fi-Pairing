@@ -1,0 +1,5 @@
+Browsing for _adb-tls-connect._tcp.local.
+DATE: ---Thu 15 Oct 2026---
+14:32:43.216  ...STARTING...
+Timestamp     A/R    Flags  if Domain               Service Type         Instance Name
+14:32:43.217  Add        2  14 local.               _adb-tls-connect._tcp. adb-58181FDCR0065F-XeVEcV

@@ -1,0 +1,29 @@
+# Version catalog: único lugar para versiones de dependencias y plugins de build.
+# Dependabot actualiza este archivo automáticamente. Los plugins de settings
+# (IntelliJ Platform Gradle Plugin, foojay) se versionan en settings.gradle.kts.
+
+[versions]
+kotlin = "2.4.20"
+changelog = "2.5.0"
+kover = "0.9.11"
+detekt = "1.23.8"
+# Kotlin con el que fue compilado detekt 1.23.x; se fuerza solo en su classpath.
+detektKotlin = "2.0.21"
+junitJupiter = "5.14.4"
+junit4 = "4.13.2"
+zxing = "3.5.4"
+
+[libraries]
+# Generación de códigos QR para el emparejamiento por QR (mismo formato que Android Studio).
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junitJupiter" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher" }
+# El test framework de IntelliJ Platform necesita JUnit 4 en el classpath aunque los tests usen JUnit 5.
+junit4 = { module = "junit:junit", version.ref = "junit4" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }

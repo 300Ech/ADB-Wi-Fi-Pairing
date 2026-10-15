@@ -1,0 +1,85 @@
+<!-- https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<!-- name, version, description, change-notes e idea-version los inyecta Gradle (patchPluginXml). -->
+<idea-plugin>
+    <id>dev.everts.adbwifi</id>
+    <vendor>Everts Chavez</vendor>
+
+    <!-- Solo Android Studio: el plugin usa el SDK y el adb que gestiona el plugin Android. -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.androidstudio</depends>
+    <depends>org.jetbrains.android</depends>
+
+    <resource-bundle>messages.AdbWifiBundle</resource-bundle>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="ADB Wi-Fi"
+                    anchor="right"
+                    icon="/icons/toolWindowAdbWifi.svg"
+                    factoryClass="dev.everts.adbwifi.ui.toolwindow.AdbWifiToolWindowFactory"/>
+        <notificationGroup id="ADB Wi-Fi" displayType="BALLOON" key="notification.group"/>
+        <applicationConfigurable parentId="tools"
+                                 instance="dev.everts.adbwifi.ui.settings.AdbWifiConfigurable"
+                                 id="dev.everts.adbwifi.settings"
+                                 key="settings.displayName"/>
+        <postStartupActivity implementation="dev.everts.adbwifi.AdbWifiStartupActivity"/>
+    </extensions>
+
+    <actions>
+        <!-- Los textos salen del bundle: action.<id>.text / action.<id>.description -->
+        <action id="AdbWifi.PairManually" class="dev.everts.adbwifi.ui.actions.PairManuallyAction"
+                icon="AllIcons.General.Add"/>
+        <action id="AdbWifi.PairWithQr" class="dev.everts.adbwifi.ui.actions.PairWithQrAction"
+                icon="AllIcons.General.Locate"/>
+        <action id="AdbWifi.ConnectManually" class="dev.everts.adbwifi.ui.actions.ConnectManuallyAction"
+                icon="AllIcons.Nodes.Plugin"/>
+        <action id="AdbWifi.Refresh" class="dev.everts.adbwifi.ui.actions.RefreshAction"
+                icon="AllIcons.Actions.Refresh"/>
+        <action id="AdbWifi.RestartAdb" class="dev.everts.adbwifi.ui.actions.RestartAdbAction"
+                icon="AllIcons.Actions.Restart"/>
+        <action id="AdbWifi.RunDiagnostics" class="dev.everts.adbwifi.ui.actions.RunDiagnosticsAction"
+                icon="AllIcons.Actions.StartDebugger"/>
+        <action id="AdbWifi.OpenSettings" class="dev.everts.adbwifi.ui.actions.OpenSettingsAction"
+                icon="AllIcons.General.Settings"/>
+
+        <action id="AdbWifi.Connect" class="dev.everts.adbwifi.ui.actions.ConnectAction"/>
+        <action id="AdbWifi.Disconnect" class="dev.everts.adbwifi.ui.actions.DisconnectAction"/>
+        <action id="AdbWifi.PairDiscovered" class="dev.everts.adbwifi.ui.actions.PairDiscoveredAction"/>
+        <action id="AdbWifi.PairAgain" class="dev.everts.adbwifi.ui.actions.PairAgainAction"/>
+        <action id="AdbWifi.EnableTcpip" class="dev.everts.adbwifi.ui.actions.EnableTcpipAction"/>
+        <action id="AdbWifi.ToggleAutoReconnect" class="dev.everts.adbwifi.ui.actions.ToggleAutoReconnectAction"/>
+        <action id="AdbWifi.Rename" class="dev.everts.adbwifi.ui.actions.RenameAction"/>
+        <action id="AdbWifi.Forget" class="dev.everts.adbwifi.ui.actions.ForgetAction"/>
+
+        <group id="AdbWifi.ToolWindowToolbar">
+            <reference ref="AdbWifi.PairManually"/>
+            <reference ref="AdbWifi.PairWithQr"/>
+            <reference ref="AdbWifi.ConnectManually"/>
+            <separator/>
+            <reference ref="AdbWifi.Refresh"/>
+            <reference ref="AdbWifi.RunDiagnostics"/>
+            <reference ref="AdbWifi.RestartAdb"/>
+            <reference ref="AdbWifi.OpenSettings"/>
+        </group>
+
+        <group id="AdbWifi.DevicePopup">
+            <reference ref="AdbWifi.Connect"/>
+            <reference ref="AdbWifi.PairDiscovered"/>
+            <reference ref="AdbWifi.PairAgain"/>
+            <reference ref="AdbWifi.Disconnect"/>
+            <reference ref="AdbWifi.EnableTcpip"/>
+            <separator/>
+            <reference ref="AdbWifi.ToggleAutoReconnect"/>
+            <reference ref="AdbWifi.Rename"/>
+            <reference ref="AdbWifi.Forget"/>
+        </group>
+
+        <group id="AdbWifi.ToolsMenu" popup="true" icon="/icons/toolWindowAdbWifi.svg">
+            <reference ref="AdbWifi.PairManually"/>
+            <reference ref="AdbWifi.PairWithQr"/>
+            <reference ref="AdbWifi.ConnectManually"/>
+            <reference ref="AdbWifi.RunDiagnostics"/>
+            <reference ref="AdbWifi.RestartAdb"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </group>
+    </actions>
+</idea-plugin>

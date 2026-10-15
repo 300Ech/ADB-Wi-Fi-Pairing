@@ -1,0 +1,24 @@
+# Configuración de detekt. Se aplica sobre la configuración por defecto
+# (buildUponDefaultConfig = true); aquí solo van las diferencias.
+# Referencia: https://detekt.dev/docs/rules/
+
+complexity:
+  LongParameterList:
+    # Los constructores de servicios IntelliJ reciben dependencias inyectadas.
+    constructorThreshold: 8
+
+naming:
+  FunctionNaming:
+    # Permite nombres de test con backticks.
+    excludes: ['**/test/**']
+
+style:
+  MaxLineLength:
+    maxLineLength: 120
+  ForbiddenComment:
+    # Los TODO se permiten si llevan contexto; FIXME/STOPSHIP no.
+    comments:
+      - value: 'FIXME:'
+        reason: 'Resolver antes de mergear.'
+      - value: 'STOPSHIP:'
+        reason: 'Resolver antes de mergear.'

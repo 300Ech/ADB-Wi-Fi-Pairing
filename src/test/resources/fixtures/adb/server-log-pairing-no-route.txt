@@ -1,0 +1,6 @@
+10-15 10:13:31.820 10310 137849 W adb     : network.cpp:149 failed to connect to '127.0.0.1:5': Connection refused
+10-15 10:13:31.841 10310 137858 W adb     : network.cpp:145 failed to resolve host: 'nonexistent.invalid': nodename nor servname provided, or not known
+10-15 14:43:33.536 10310 358779 W adb     : network.cpp:149 failed to connect to '192.168.0.16:38867': No route to host
+10-15 14:43:33.536 10310 358779 E adb     : pairing_client.cpp:133 Failed to start pairing connection client [failed to connect to '192.168.0.16:38867': No route to host]
+10-15 14:43:33.536 10310 358779 E adb     : pairing_client.cpp:119 Unable to start PairingClient connection
+10-15 14:44:33.804 10310 360156 W adb     : network.cpp:149 failed to connect to '192.168.0.16:34389': No route to host

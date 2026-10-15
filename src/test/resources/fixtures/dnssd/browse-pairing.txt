@@ -1,0 +1,5 @@
+Browsing for _adb-tls-pairing._tcp.local.
+DATE: ---Thu 15 Oct 2026---
+14:32:40.205  ...STARTING...
+Timestamp     A/R    Flags  if Domain               Service Type         Instance Name
+14:32:40.206  Add        2  14 local.               _adb-tls-pairing._tcp. studio-VISAKqPGtD

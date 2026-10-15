@@ -1,0 +1,40 @@
+10-15 10:39:40.657 10310 179160 I adb     : tls_connection.cpp:91 [client]: Initializing adbwifi TlsConnection
+10-15 10:39:40.657 10310 179160 I adb     : tls_connection.cpp:211 [client]: Starting adbwifi tls handshake
+10-15 10:39:40.681 10310 179160 E adb     : tls_connection.cpp:290 [client]: Post-handshake SSL_peek failed [SSLV3_ALERT_CERTIFICATE_UNKNOWN]
+10-15 10:39:40.681 10310 179160 I adb     : transport.cpp:1123 kicking transport 0x7913010600 adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp
+10-15 10:39:40.681 10310 179161 I adb     : transport.cpp:1222 adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp: connection terminated: read failed
+10-15 10:39:53.951 10310 179344 I adb     : tls_connection.cpp:91 [client]: Initializing adbwifi TlsConnection
+10-15 10:39:53.951 10310 179344 I adb     : tls_connection.cpp:211 [client]: Starting adbwifi tls handshake
+10-15 10:39:54.038 10310 179344 E adb     : tls_connection.cpp:290 [client]: Post-handshake SSL_peek failed [SSLV3_ALERT_CERTIFICATE_UNKNOWN]
+10-15 10:39:54.038 10310 179344 I adb     : transport.cpp:1123 kicking transport 0x7913010600 adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp
+10-15 10:39:54.038 10310 179345 I adb     : transport.cpp:1222 adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp: connection terminated: read failed
+10-15 10:40:15.889 10310 180081 I adb     : tls_connection.cpp:91 [client]: Initializing adbwifi TlsConnection
+10-15 10:40:15.889 10310 180081 I adb     : tls_connection.cpp:211 [client]: Starting adbwifi tls handshake
+10-15 10:40:15.930 10310 180081 E adb     : tls_connection.cpp:290 [client]: Post-handshake SSL_peek failed [SSLV3_ALERT_CERTIFICATE_UNKNOWN]
+10-15 10:40:15.930 10310 180081 I adb     : transport.cpp:1123 kicking transport 0x7913010600 adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp
+10-15 10:40:15.930 10310 180084 I adb     : transport.cpp:1222 adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp: connection terminated: read failed
+10-15 10:40:18.956 10310 180202 I adb     : tls_connection.cpp:91 [client]: Initializing adbwifi TlsConnection
+10-15 10:40:18.956 10310 180202 I adb     : tls_connection.cpp:211 [client]: Starting adbwifi tls handshake
+10-15 10:40:18.974 10310 180202 E adb     : tls_connection.cpp:290 [client]: Post-handshake SSL_peek failed [SSLV3_ALERT_CERTIFICATE_UNKNOWN]
+10-15 10:40:18.974 10310 180202 I adb     : transport.cpp:1123 kicking transport 0x7913010600 adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp
+10-15 10:40:18.974 10310 180203 I adb     : transport.cpp:1222 adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp: connection terminated: read failed
+10-15 10:41:04.215 10310 182346 I adb     : tls_connection.cpp:91 [client]: Initializing adbwifi TlsConnection
+10-15 10:41:04.216 10310 182346 I adb     : tls_connection.cpp:211 [client]: Starting adbwifi tls handshake
+10-15 10:41:04.246 10310 182346 E adb     : tls_connection.cpp:290 [client]: Post-handshake SSL_peek failed [SSLV3_ALERT_CERTIFICATE_UNKNOWN]
+10-15 10:41:04.247 10310 182346 I adb     : transport.cpp:1123 kicking transport 0x7913010600 adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp
+10-15 10:41:04.247 10310 182347 I adb     : transport.cpp:1222 adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp: connection terminated: read failed
+10-15 10:41:12.209 10310 182404 I adb     : tls_connection.cpp:91 [client]: Initializing adbwifi TlsConnection
+10-15 10:41:12.210 10310 182404 I adb     : tls_connection.cpp:211 [client]: Starting adbwifi tls handshake
+10-15 10:41:12.284 10310 182404 E adb     : tls_connection.cpp:290 [client]: Post-handshake SSL_peek failed [SSLV3_ALERT_CERTIFICATE_UNKNOWN]
+10-15 10:41:12.284 10310 182404 I adb     : transport.cpp:1123 kicking transport 0x7913010600 adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp
+10-15 10:41:12.285 10310 182408 I adb     : transport.cpp:1222 adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp: connection terminated: read failed
+10-15 10:41:25.147 10310 182498 I adb     : tls_connection.cpp:91 [client]: Initializing adbwifi TlsConnection
+10-15 10:41:25.147 10310 182498 I adb     : tls_connection.cpp:211 [client]: Starting adbwifi tls handshake
+10-15 10:41:25.186 10310 182498 E adb     : tls_connection.cpp:290 [client]: Post-handshake SSL_peek failed [SSLV3_ALERT_CERTIFICATE_UNKNOWN]
+10-15 10:41:25.186 10310 182498 I adb     : transport.cpp:1123 kicking transport 0x7913010600 adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp
+10-15 10:41:25.186 10310 182499 I adb     : transport.cpp:1222 adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp: connection terminated: read failed
+10-15 10:41:31.506 10310 182579 I adb     : tls_connection.cpp:91 [client]: Initializing adbwifi TlsConnection
+10-15 10:41:31.507 10310 182579 I adb     : tls_connection.cpp:211 [client]: Starting adbwifi tls handshake
+10-15 10:41:31.533 10310 182579 E adb     : tls_connection.cpp:290 [client]: Post-handshake SSL_peek failed [SSLV3_ALERT_CERTIFICATE_UNKNOWN]
+10-15 10:41:31.534 10310 182579 I adb     : transport.cpp:1123 kicking transport 0x7913010600 adb-RF8R714D8RE-ztuI1d._adb-tls-connect._tcp
+10-15 10:41:31.534 10310 182580 I adb     : transport.cpp:1222 adb-RF8R714D8RE-ztuI1d._adb-tls-connect._tcp: connection terminated: read failed

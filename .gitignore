@@ -1,0 +1,8 @@
+.DS_Store
+.gradle
+.idea
+.intellijPlatform
+.kotlin
+build
+# Configuración específica de cada máquina (ruta local de Android Studio, etc.)
+local.properties

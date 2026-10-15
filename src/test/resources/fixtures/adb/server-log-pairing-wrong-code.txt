@@ -1,0 +1,7 @@
+10-15 10:12:43.947 10310 137121 I adb     : tls_connection.cpp:211 [client]: Starting adbwifi tls handshake
+10-15 10:12:43.954 10310 137121 I adb     : tls_connection.cpp:298 [client]: Handshake succeeded.
+10-15 10:12:43.957 10310 137121 E adb     : aes_128_gcm.cpp:73 Failed to decrypt (in_len=8208, out_len=8208, out_len_needed=8208)
+10-15 10:12:43.957 10310 137121 E adb     : pairing_auth.cpp:191 Unable to decrypt data
+10-15 10:12:43.957 10310 137121 E adb     : pairing_connection.cpp:389 Failed to decrypt
+10-15 10:12:43.981 10310 137131 I adb     : tls_connection.cpp:91 [client]: Initializing adbwifi TlsConnection
+10-15 10:12:43.981 10310 137131 I adb     : tls_connection.cpp:211 [client]: Starting adbwifi tls handshake

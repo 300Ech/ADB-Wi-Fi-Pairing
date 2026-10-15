@@ -1,0 +1,1 @@
+Successfully paired to 127.0.0.1:7791 [guid=adb-EMULATOR36X3X10X0-hk2X6D]

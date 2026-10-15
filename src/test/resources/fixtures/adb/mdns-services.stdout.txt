@@ -1,0 +1,3 @@
+List of discovered mdns services
+adb-58181FDCR0065F-XeVEcV	_adb-tls-connect._tcp	192.168.0.16:40073
+

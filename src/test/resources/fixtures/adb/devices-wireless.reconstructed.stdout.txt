@@ -1,0 +1,7 @@
+List of devices attached
+adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp device product:frankel model:Pixel_10 device:frankel transport_id:3
+192.168.0.16:40073     device product:frankel model:Pixel_10 device:frankel transport_id:4
+0A1B2C3D4E5F           unauthorized usb:1-1 transport_id:5
+0A1B2C3D4E60           no permissions (missing udev rules? user is in the plugdev group); see [http://developer.android.com/tools/device.html] usb:1-2 transport_id:6
+192.168.0.17:5555      authorizing transport_id:7
+

@@ -1,0 +1,5 @@
+Lookup adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp.local.
+DATE: ---Thu 15 Oct 2026---
+14:32:49.248  ...STARTING...
+14:32:49.249  adb-58181FDCR0065F-XeVEcV._adb-tls-connect._tcp.local. can be reached at Android_84GKWQPE.local.:34389 (interface 14)
+ given_name=Everts\'\ Phone serial=58181FDCR0065F v=2.1 api=37.1 name=Pixel\ 10
