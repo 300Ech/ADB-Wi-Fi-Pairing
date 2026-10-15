@@ -49,6 +49,8 @@ data class AdbWifiState(
     val adbProblem: String? = null,
     /** Filas con una operación en curso. */
     val busyKeys: Set<String> = emptySet(),
+    /** macOS no deja a Android Studio usar la red local: hay que darle el permiso (una vez). */
+    val localNetworkBlocked: Boolean = false,
     /** Último fallo de conexión por fila; `AUTHENTICATION_FAILED` significa "volver a emparejar". */
     val failures: Map<String, AdbFailureReason> = emptyMap(),
     val loaded: Boolean = false,
@@ -96,6 +98,11 @@ class AdbWifiController(
     private val suppressed: MutableSet<String> = ConcurrentHashMap.newKeySet()
     private val failures = ConcurrentHashMap<String, AdbFailureReason>()
     private val availableSince = ConcurrentHashMap<String, Duration>()
+    private val networkLock = Mutex()
+
+    @Volatile
+    private var localNetworkBlocked = false
+    private var lastNetworkCheck: Duration? = null
 
     /** Arranca el ciclo de refresco y reconexión. Llamarlo varias veces no hace nada más. */
     fun start() {
@@ -103,6 +110,7 @@ class AdbWifiController(
         scope.launch {
             while (isActive) {
                 try {
+                    checkLocalNetwork()
                     refresh()
                     if (settings().autoReconnect) reconnectOnce()
                 } catch (e: CancellationException) {
@@ -247,6 +255,27 @@ class AdbWifiController(
     /** `No route to host` desde adb mientras Android Studio sí llega al teléfono. */
     private suspend fun adbServerCutOff(reason: AdbFailureReason, endpoint: AdbEndpoint): Boolean =
         reason == AdbFailureReason.NO_ROUTE_TO_HOST && probes.reachable(endpoint)
+
+    /**
+     * Comprueba si macOS deja a Android Studio usar la red local: una vez por minuto, o cada pocos
+     * segundos mientras está bloqueado para notar enseguida que el usuario dio el permiso. Al pasar de
+     * bloqueado a permitido reinicia adb: el servidor arrancado sin permiso sigue ciego aunque luego se dé.
+     *
+     * @param force comprueba ya, sin esperar al intervalo (botón "Comprobar de nuevo").
+     */
+    suspend fun checkLocalNetwork(force: Boolean = false) {
+        val wasBlocked = networkLock.withLock {
+            val now = probes.now()
+            val interval = if (localNetworkBlocked) BLOCKED_RECHECK_INTERVAL else NETWORK_CHECK_INTERVAL
+            if (!force && lastNetworkCheck?.let { now - it < interval } == true) return
+            lastNetworkCheck = now
+            val previous = localNetworkBlocked
+            localNetworkBlocked = probes.localNetworkBlocked() == true
+            _state.update { it.copy(localNetworkBlocked = localNetworkBlocked) }
+            previous
+        }
+        if (wasBlocked && !localNetworkBlocked) restartAdb()
+    }
 
     /**
      * `adb connect` y refresco. Si conecta, la fila vuelve a ser candidata a reconexión automática.
@@ -459,6 +488,8 @@ class AdbWifiController(
         private val TCPIP_RESTART_DELAY = 2.seconds
         private val FAST_POLL_INTERVAL = 1.seconds
         private val QR_TIMEOUT = 3.minutes
+        private val NETWORK_CHECK_INTERVAL = 1.minutes
+        private val BLOCKED_RECHECK_INTERVAL = 5.seconds
         private val VAGUE_PAIRING_FAILURES = setOf(AdbFailureReason.PROTOCOL_FAULT, AdbFailureReason.UNKNOWN)
     }
 }

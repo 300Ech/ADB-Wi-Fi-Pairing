@@ -15,6 +15,7 @@ import dev.everts.adbwifi.adb.AdbException
 import dev.everts.adbwifi.application.PairOutcome
 import dev.everts.adbwifi.domain.PairingResult
 import dev.everts.adbwifi.domain.QrPairingRequest
+import dev.everts.adbwifi.ui.LocalNetworkBanner
 import dev.everts.adbwifi.ui.ResultMessages
 import dev.everts.adbwifi.ui.pairing.AdbOperationDialog
 import kotlinx.coroutines.CancellationException
@@ -61,6 +62,9 @@ class QrPairingDialog(private val project: Project?) : DialogWrapper(project) {
     )
 
     override fun createCenterPanel(): JComponent = panel {
+        if (AdbWifiService.getInstance().controller.state.value.localNetworkBlocked) {
+            row { cell(LocalNetworkBanner.create()).align(AlignX.FILL) }
+        }
         row { text(AdbWifiBundle.message("qr.instructions")).align(AlignX.FILL) }
         row {
             val image = QrCodeImage.render(request.payload, JBUI.scale(QR_SIZE))

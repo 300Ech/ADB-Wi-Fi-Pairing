@@ -36,7 +36,12 @@ class DiagnosticsRunner(
         val services = checkAdb(this)
         checkDevices(this, state, services)
         val probeTarget = target ?: defaultTarget(state)
-        if (probeTarget == null) {
+        val studioBlocked = isMac && network.localNetworkBlocked(probeTimeout) == true
+        if (studioBlocked) {
+            // Las pruebas de red salen de Android Studio: con el permiso denegado no dicen nada del teléfono.
+            val fixes = listOf(Fix.OPEN_LOCAL_NETWORK_SETTINGS)
+            add(CheckResult(Finding.STUDIO_NO_LOCAL_NETWORK, Severity.ERROR, fixes = fixes))
+        } else if (probeTarget == null) {
             add(CheckResult(Finding.NO_TARGET, Severity.INFO))
         } else {
             checkNetwork(this, probeTarget)

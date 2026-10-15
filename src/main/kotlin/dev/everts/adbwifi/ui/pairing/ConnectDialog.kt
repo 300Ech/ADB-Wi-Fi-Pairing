@@ -9,6 +9,7 @@ import dev.everts.adbwifi.AdbWifiBundle
 import dev.everts.adbwifi.AdbWifiService
 import dev.everts.adbwifi.domain.AdbEndpoint
 import dev.everts.adbwifi.domain.ConnectResult
+import dev.everts.adbwifi.ui.LocalNetworkBanner
 import dev.everts.adbwifi.ui.ResultMessages
 import javax.swing.JComponent
 
@@ -26,6 +27,9 @@ class ConnectDialog(project: Project?, endpoint: AdbEndpoint? = null) : AdbOpera
     }
 
     override fun createCenterPanel(): JComponent = panel {
+        if (AdbWifiService.getInstance().controller.state.value.localNetworkBlocked) {
+            row { cell(LocalNetworkBanner.create()).align(AlignX.FILL) }
+        }
         row {
             text(AdbWifiBundle.message("connect.instructions")).align(AlignX.FILL)
         }
@@ -46,7 +50,8 @@ class ConnectDialog(project: Project?, endpoint: AdbEndpoint? = null) : AdbOpera
 
     override fun isSuccess(result: ConnectResult): Boolean = result is ConnectResult.Connected
 
-    override fun failureText(result: ConnectResult): String = ResultMessages.connect(result)
+    override fun failureText(result: ConnectResult): String =
+        ResultMessages.withNetworkHint(ResultMessages.connect(result), AdbEndpoint.parse(endpointText))
 
     private companion object {
         const val COLUMNS = 22

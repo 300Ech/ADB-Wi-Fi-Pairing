@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-15
+
+### Fixed
+
+- On macOS, when Android Studio does not have the Local Network permission (so neither it nor adb can
+  see or reach phones over Wi-Fi), the plugin now says so up front with a one-click way to open the
+  right settings, instead of failing later with timeouts. Once the permission is on, it restarts adb
+  by itself.
+- When the address typed in the pairing or connection dialog is not on this computer's network (for
+  example because a VPN on the phone makes Android show the VPN address), the error says so.
+- Labels showed "IP address  port" instead of "IP address and port".
+
 ## [0.1.0] - 2026-10-15
 
 First release.

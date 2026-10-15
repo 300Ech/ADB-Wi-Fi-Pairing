@@ -20,6 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import java.time.LocalDateTime
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class DiagnosticsTest {
 
@@ -61,6 +62,46 @@ class DiagnosticsTest {
                 LocalDateTime.of(2026, 10, 15, 10, 12, 43),
             ),
         )
+    }
+
+    @Test
+    fun `route output gives the router address`() {
+        val output = requireNotNull(javaClass.getResource("/fixtures/route/route-get-default.txt")).readText()
+        assertEquals("192.168.0.1", RouteParser.gateway(output))
+        assertEquals(null, RouteParser.gateway("route: writing to routing socket: not in table\n"))
+    }
+
+    private fun probe(result: ProbeResult, gateway: String? = "192.168.0.1") = object : NetworkProbe {
+        override fun localNetworks() = listOf(LocalNetwork("en0", "192.168.0.21", 24))
+
+        override suspend fun tcpConnect(endpoint: AdbEndpoint, timeout: Duration) = result
+
+        override fun defaultGateway() = gateway
+    }
+
+    @Test
+    fun `no route to the router means macOS blocks android studio`() = runBlocking {
+        assertEquals(true, probe(ProbeResult.NO_ROUTE).localNetworkBlocked(1.seconds))
+        assertEquals(false, probe(ProbeResult.REFUSED).localNetworkBlocked(1.seconds))
+        assertEquals(null, probe(ProbeResult.TIMEOUT).localNetworkBlocked(1.seconds))
+        assertEquals(null, probe(ProbeResult.NO_ROUTE, gateway = null).localNetworkBlocked(1.seconds))
+    }
+
+    @Test
+    fun `blocked android studio replaces the network checks with the permission step`() = runBlocking {
+        val runner = DiagnosticsRunner(
+            gatewayProvider = { gateway },
+            network = probe(ProbeResult.NO_ROUTE),
+            rejectedSerials = { emptySet() },
+            isMac = true,
+        )
+
+        val checks = runner.run(AdbWifiState(), endpoint)
+
+        val blocked = checks.single { it.finding == Finding.STUDIO_NO_LOCAL_NETWORK }
+        assertEquals(Severity.ERROR, blocked.severity)
+        assertEquals(listOf(Fix.OPEN_LOCAL_NETWORK_SETTINGS), blocked.fixes)
+        assertTrue(checks.none { it.finding == Finding.LOCAL_NETWORK_BLOCKED || it.finding == Finding.PORT_OPEN })
     }
 
     @Test

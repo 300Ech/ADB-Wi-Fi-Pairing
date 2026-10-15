@@ -12,6 +12,9 @@ import java.net.NetworkInterface
 import java.net.NoRouteToHostException
 import java.net.Socket
 import java.net.SocketTimeoutException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 
 /** Red IPv4 de una interfaz local, p. ej. `en0` 192.168.0.21/24. */
@@ -51,13 +54,54 @@ interface NetworkProbe {
     fun localNetworks(): List<LocalNetwork>
 
     suspend fun tcpConnect(endpoint: AdbEndpoint, timeout: Duration): ProbeResult
+
+    /** IP del router (puerta de enlace por defecto), o `null` si no se puede saber. */
+    fun defaultGateway(): String? = null
 }
+
+/** Parser de `route -n get default` (macOS): la línea `gateway: 192.168.0.1`. */
+object RouteParser {
+    private val GATEWAY = Regex("""^\s*gateway:\s*(\d{1,3}(?:\.\d{1,3}){3})\s*$""", RegexOption.MULTILINE)
+
+    fun gateway(output: String): String? = GATEWAY.find(output)?.groupValues?.get(1)
+}
+
+/**
+ * Si macOS impide a Android Studio usar la red local. Se prueba una conexión TCP al router: con el
+ * permiso "Red local" denegado falla al instante con `No route to host`; con permiso responde o rechaza.
+ * Devuelve `null` si no hay router conocido o el resultado no es concluyente.
+ */
+suspend fun NetworkProbe.localNetworkBlocked(timeout: Duration): Boolean? {
+    val gateway = defaultGateway() ?: return null
+    return when (tcpConnect(AdbEndpoint(gateway, GATEWAY_PROBE_PORT), timeout)) {
+        ProbeResult.NO_ROUTE -> true
+        ProbeResult.OPEN, ProbeResult.REFUSED -> false
+        else -> null
+    }
+}
+
+/** Puerto HTTP del router; da igual que esté cerrado: un rechazo también prueba que hay ruta. */
+private const val GATEWAY_PROBE_PORT = 80
 
 /**
  * Implementación con `java.net`. La conexión sale del proceso de Android Studio, que es la app a la
  * que macOS concede o niega el permiso "Red local", igual que al adb que lanza.
  */
 object JvmNetworkProbe : NetworkProbe {
+
+    private const val ROUTE_TIMEOUT_SECONDS = 2L
+
+    override fun defaultGateway(): String? {
+        val route = Path.of("/sbin/route").takeIf { Files.isExecutable(it) } ?: return null
+        return try {
+            val process = ProcessBuilder(route.toString(), "-n", "get", "default").redirectErrorStream(true).start()
+            val output = process.inputStream.bufferedReader().use { it.readText() }
+            process.waitFor(ROUTE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            RouteParser.gateway(output)
+        } catch (_: IOException) {
+            null
+        }
+    }
 
     override fun localNetworks(): List<LocalNetwork> =
         NetworkInterface.networkInterfaces().toList()

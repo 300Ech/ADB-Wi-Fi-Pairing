@@ -16,6 +16,7 @@ import dev.everts.adbwifi.application.PairOutcome
 import dev.everts.adbwifi.domain.AdbEndpoint
 import dev.everts.adbwifi.domain.PairingCode
 import dev.everts.adbwifi.domain.PairingResult
+import dev.everts.adbwifi.ui.LocalNetworkBanner
 import dev.everts.adbwifi.ui.ResultMessages
 import javax.swing.JComponent
 
@@ -63,6 +64,9 @@ class PairDialog(
     }
 
     override fun createCenterPanel(): JComponent = panel {
+        if (AdbWifiService.getInstance().controller.state.value.localNetworkBlocked) {
+            row { cell(LocalNetworkBanner.create()).align(AlignX.FILL) }
+        }
         row {
             text(AdbWifiBundle.message("pair.instructions")).align(AlignX.FILL)
         }
@@ -132,7 +136,8 @@ class PairDialog(
 
     override fun isSuccess(result: PairOutcome): Boolean = result.pairing is PairingResult.Paired
 
-    override fun failureText(result: PairOutcome): String = ResultMessages.pair(result)
+    override fun failureText(result: PairOutcome): String =
+        ResultMessages.withNetworkHint(ResultMessages.pair(result), AdbEndpoint.parse(endpointText))
 
     private companion object {
         const val COLUMNS = 22

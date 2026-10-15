@@ -28,15 +28,19 @@ data class ControllerSettings(
  *   log del servidor adb, que reintenta solo y no avisa).
  * @param pairingFailure causa real de un `adb pair` fallido desde un instante, leída del log del servidor
  *   (el cliente solo informa `protocol fault`).
+ * @param localNetworkBlocked si macOS impide a Android Studio usar la red local (`null` si no se sabe).
+ *   Sin ese permiso, ni Android Studio ni el servidor adb que lanza ven ni alcanzan teléfonos por Wi-Fi.
  * @param reachable comprobación rápida (TCP) antes de reintentar una dirección guardada que no se anuncia
  *   por mDNS; evita esperar el timeout de `adb connect` por cada teléfono apagado.
  */
+@Suppress("LongParameterList") // conjunto de funciones independientes, todas con valor por defecto
 class ControllerProbes(
     val now: () -> Duration = { System.nanoTime().nanoseconds },
     val rejectedSerials: () -> Set<String> = { emptySet() },
     val reachable: suspend (AdbEndpoint) -> Boolean = { true },
     val pairingFailure: (AdbEndpoint, LocalDateTime) -> AdbFailureReason? = { _, _ -> null },
     val wallClock: () -> LocalDateTime = LocalDateTime::now,
+    val localNetworkBlocked: suspend () -> Boolean? = { null },
 )
 
 /** Hechos que merecen avisar al usuario aunque no esté mirando el tool window. */

@@ -20,6 +20,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -42,6 +43,8 @@ class AdbWifiControllerTest {
     private var adbAvailable = true
     private var phoneReachable = true
     private var loggedPairingFailure: AdbFailureReason? = null
+    private var studioBlocked: Boolean? = false
+    private var networkChecks = 0
 
     private val controller = AdbWifiController(
         scope = scope,
@@ -53,6 +56,7 @@ class AdbWifiControllerTest {
             now = { clock },
             reachable = { phoneReachable },
             pairingFailure = { _, _ -> loggedPairingFailure },
+            localNetworkBlocked = { networkChecks++; studioBlocked },
         ),
     )
 
@@ -159,6 +163,34 @@ class AdbWifiControllerTest {
 
         assertEquals(AdbFailureReason.ADB_SERVER_NO_NETWORK, (result as ConnectResult.Failed).reason)
         assertEquals(listOf("connect $connectEndpoint", "restart {}", "connect $connectEndpoint"), gateway.calls)
+    }
+
+    @Test
+    fun `blocked local network is reported and adb restarts once the permission is given`() = runBlocking {
+        studioBlocked = true
+        controller.checkLocalNetwork()
+        controller.checkLocalNetwork()
+        assertTrue(controller.state.value.localNetworkBlocked)
+        assertEquals(1, networkChecks, "no se repite antes del intervalo")
+
+        studioBlocked = false
+        clock += 5.seconds
+        controller.checkLocalNetwork()
+
+        assertFalse(controller.state.value.localNetworkBlocked)
+        assertEquals(listOf("restart {}"), gateway.calls, "el servidor arrancado sin permiso sigue ciego")
+    }
+
+    @Test
+    fun `allowed local network is checked once a minute and restarts nothing`() = runBlocking {
+        controller.checkLocalNetwork()
+        clock += 30.seconds
+        controller.checkLocalNetwork()
+        controller.checkLocalNetwork(force = true)
+
+        assertEquals(2, networkChecks)
+        assertFalse(controller.state.value.localNetworkBlocked)
+        assertTrue(gateway.calls.isEmpty())
     }
 
     @Test

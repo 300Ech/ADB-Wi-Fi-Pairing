@@ -29,6 +29,7 @@ enum class Finding {
     PORT_TIMEOUT,
     HOST_DOWN,
     LOCAL_NETWORK_BLOCKED,
+    STUDIO_NO_LOCAL_NETWORK,
 }
 
 /** Reparaciones que la UI puede ofrecer junto a un resultado. */

@@ -1,12 +1,10 @@
 package dev.everts.adbwifi.ui.diagnostics
 
-import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.application.EDT
-import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.Messages
@@ -23,12 +21,12 @@ import dev.everts.adbwifi.diagnostics.CheckResult
 import dev.everts.adbwifi.diagnostics.Fix
 import dev.everts.adbwifi.diagnostics.Severity
 import dev.everts.adbwifi.domain.AdbEndpoint
+import dev.everts.adbwifi.ui.LocalNetworkBanner
 import dev.everts.adbwifi.ui.actions.showPairDialog
 import dev.everts.adbwifi.ui.pairing.PairDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
-import java.io.IOException
 import javax.swing.Icon
 
 /** Pestaña "Diagnóstico": ejecuta los chequeos y ofrece las reparaciones que correspondan. */
@@ -98,7 +96,7 @@ class DiagnosticsPanel(private val project: Project) : BorderLayoutPanel(), Disp
     private fun apply(fix: Fix, check: CheckResult) {
         val service = AdbWifiService.getInstance()
         when (fix) {
-            Fix.OPEN_LOCAL_NETWORK_SETTINGS -> service.launch { openLocalNetworkSettings() }
+            Fix.OPEN_LOCAL_NETWORK_SETTINGS -> LocalNetworkBanner.openSettings()
             Fix.RESTART_ADB, Fix.RESTART_ADB_WITH_MDNS -> {
                 val confirmed = Messages.showYesNoDialog(
                     project,
@@ -117,16 +115,6 @@ class DiagnosticsPanel(private val project: Project) : BorderLayoutPanel(), Disp
             Fix.OPEN_SDK_MANAGER -> ActionManager.getInstance().getAction(SDK_MANAGER_ACTION)?.let {
                 ActionManager.getInstance().tryToExecute(it, null, this, ActionPlaces.TOOLWINDOW_CONTENT, true)
             }
-        }
-    }
-
-    private fun openLocalNetworkSettings() {
-        try {
-            GeneralCommandLine("open", LOCAL_NETWORK_SETTINGS_URL).createProcess()
-        } catch (e: com.intellij.execution.ExecutionException) {
-            thisLogger().warn("Could not open Local Network settings", e)
-        } catch (e: IOException) {
-            thisLogger().warn("Could not open Local Network settings", e)
         }
     }
 
@@ -153,7 +141,5 @@ class DiagnosticsPanel(private val project: Project) : BorderLayoutPanel(), Disp
         const val PADDING = 8
         const val DEFAULT_PROBE_PORT = 5555
         const val SDK_MANAGER_ACTION = "Android.RunAndroidSdkManager"
-        const val LOCAL_NETWORK_SETTINGS_URL =
-            "x-apple.systempreferences:com.apple.preference.security?Privacy_LocalNetwork"
     }
 }

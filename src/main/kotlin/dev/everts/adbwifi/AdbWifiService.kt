@@ -15,6 +15,7 @@ import dev.everts.adbwifi.diagnostics.AdbServerLog
 import dev.everts.adbwifi.diagnostics.DiagnosticsRunner
 import dev.everts.adbwifi.diagnostics.JvmNetworkProbe
 import dev.everts.adbwifi.diagnostics.ProbeResult
+import dev.everts.adbwifi.diagnostics.localNetworkBlocked
 import dev.everts.adbwifi.persistence.AdbWifiSettings
 import dev.everts.adbwifi.persistence.PairedDevicesState
 import dev.everts.adbwifi.ui.notifications.AdbWifiNotifications
@@ -47,6 +48,9 @@ class AdbWifiService(private val scope: CoroutineScope) {
             rejectedSerials = { AdbServerLog.recentRejections() },
             reachable = { JvmNetworkProbe.tcpConnect(it, REACHABILITY_TIMEOUT) == ProbeResult.OPEN },
             pairingFailure = AdbServerLog::currentPairingFailure,
+            localNetworkBlocked = {
+                if (SystemInfo.isMac) JvmNetworkProbe.localNetworkBlocked(REACHABILITY_TIMEOUT) else false
+            },
         ),
     )
 

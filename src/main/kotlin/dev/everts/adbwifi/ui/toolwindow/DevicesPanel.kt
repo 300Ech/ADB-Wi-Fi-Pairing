@@ -27,6 +27,7 @@ import dev.everts.adbwifi.domain.AdbFailureReason
 import dev.everts.adbwifi.domain.DeviceEntry
 import dev.everts.adbwifi.domain.EntryStatus
 import dev.everts.adbwifi.ui.AdbWifiDataKeys
+import dev.everts.adbwifi.ui.LocalNetworkBanner
 import dev.everts.adbwifi.ui.ResultMessages
 import dev.everts.adbwifi.ui.actions.AdbWifiActionIds
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +44,15 @@ class DevicesPanel : SimpleToolWindowPanel(true, true), UiDataProvider, Disposab
     private val statusLabel = JBLabel().apply { border = JBUI.Borders.empty(STATUS_PADDING_V, STATUS_PADDING_H) }
     private var busyKeys: Set<String> = emptySet()
     private var rejectedKeys: Set<String> = emptySet()
+
+    /** Paso de configuración de macOS, visible solo mientras falta el permiso de red local. */
+    private val networkBanner = LocalNetworkBanner.create(onCheckAgain = {
+        val service = AdbWifiService.getInstance()
+        service.launch {
+            service.controller.checkLocalNetwork(force = true)
+            service.controller.refresh()
+        }
+    }).apply { isVisible = false }
 
     init {
         table.setShowGrid(false)
@@ -77,6 +87,7 @@ class DevicesPanel : SimpleToolWindowPanel(true, true), UiDataProvider, Disposab
         setToolbar(toolbar.component)
         setContent(
             BorderLayoutPanel()
+                .addToTop(networkBanner)
                 .addToCenter(ScrollPaneFactory.createScrollPane(table, true))
                 .addToBottom(statusLabel),
         )
@@ -101,6 +112,7 @@ class DevicesPanel : SimpleToolWindowPanel(true, true), UiDataProvider, Disposab
             !state.loaded -> AdbWifiBundle.message("devices.loading")
             else -> AdbWifiBundle.message("devices.summary", state.entries.count { it.status == EntryStatus.CONNECTED })
         }
+        networkBanner.isVisible = state.localNetworkBlocked
     }
 
     private fun invokeAction(id: String) {

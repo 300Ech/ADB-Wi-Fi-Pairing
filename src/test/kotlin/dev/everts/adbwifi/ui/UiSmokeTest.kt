@@ -9,6 +9,7 @@ import com.intellij.testFramework.junit5.fixture.projectFixture
 import dev.everts.adbwifi.diagnostics.CheckResult
 import dev.everts.adbwifi.diagnostics.Finding
 import dev.everts.adbwifi.diagnostics.Fix
+import dev.everts.adbwifi.diagnostics.LocalNetwork
 import dev.everts.adbwifi.diagnostics.Severity
 import dev.everts.adbwifi.domain.AdbEndpoint
 import dev.everts.adbwifi.ui.diagnostics.DiagnosticsPanel
@@ -20,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -66,6 +68,15 @@ class UiSmokeTest {
         } finally {
             Disposer.dispose(panel)
         }
+    }
+
+    @Test
+    fun `addresses outside this computer networks get the vpn hint`() {
+        val networks = listOf(LocalNetwork("en0", "192.168.0.21", 24), LocalNetwork("utun4", "10.2.0.9", 24))
+
+        assertNotNull(ResultMessages.offNetworkHint(AdbEndpoint("10.2.0.2", 46179), networks))
+        assertNull(ResultMessages.offNetworkHint(AdbEndpoint("192.168.0.16", 46179), networks))
+        assertNull(ResultMessages.offNetworkHint(AdbEndpoint("pixel.local", 46179), networks))
     }
 
     @Test

@@ -28,11 +28,11 @@ class AdbWifiBundleTest {
     }
 
     @Test
-    fun `no lone ampersands`() {
-        // El bundle trata `&` como marca de mnemónico: `&gt;` se vería como "gt;". Un `&` literal es `&&`.
-        val lone = Regex("""(?<!&)&(?!&)""")
-        val offending = (english.entries + spanish.entries).filter { lone.containsMatchIn(it.value.toString()) }
-        assertTrue(offending.isEmpty(), "Usa > o && en: ${offending.map { it.key }}")
+    fun `no ampersands`() {
+        // `&` es marca de mnemónico en el bundle y otra vez en las etiquetas del UI DSL: desaparece o se
+        // descoloca ("IP address  port"). Se escribe "and"/"y" y ">" en vez de entidades HTML.
+        val offending = (english.entries + spanish.entries).filter { '&' in it.value.toString() }
+        assertTrue(offending.isEmpty(), "Sin & en: ${offending.map { it.key }}")
     }
 
     @Test
