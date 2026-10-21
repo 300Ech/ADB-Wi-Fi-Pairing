@@ -1,0 +1,1 @@
+failed to connect to '192.168.0.42:37099': cannot connect to 192.168.0.42:37099: Se produjo un error durante el intento de conexión ya que la parte conectada no respondió adecuadamente tras un periodo de tiempo, o bien se produjo un error en la conexión establecida ya que el host conectado no ha podido responder. (10060)

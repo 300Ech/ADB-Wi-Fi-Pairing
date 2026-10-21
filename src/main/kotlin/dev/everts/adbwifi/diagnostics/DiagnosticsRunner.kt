@@ -22,6 +22,7 @@ import kotlin.time.Duration.Companion.seconds
  * @param bonjourServices servicios que ve Bonjour (macOS), para detectar que el descubrimiento de adb se
  *   quedó ciego; `null` si no hay Bonjour.
  * @param isMac el permiso "Red local" solo existe en macOS; en otros sistemas `No route to host` es de red.
+ * @param windowsNetwork tipo de red y Firewall de Windows; `null` fuera de Windows.
  */
 class DiagnosticsRunner(
     private val gatewayProvider: () -> AdbGateway,
@@ -29,12 +30,14 @@ class DiagnosticsRunner(
     private val network: NetworkProbe,
     private val rejectedSerials: () -> Set<String>,
     private val isMac: Boolean,
+    private val windowsNetwork: (suspend () -> WindowsNetworkStatus?)? = null,
     private val probeTimeout: Duration = 3.seconds,
 ) {
 
     suspend fun run(state: AdbWifiState, target: AdbEndpoint?): List<CheckResult> = buildList {
         val services = checkAdb(this)
         checkDevices(this, state, services)
+        windowsNetwork?.let { checkWindows(this, it) }
         val probeTarget = target ?: defaultTarget(state)
         val studioBlocked = isMac && network.localNetworkBlocked(probeTimeout) == true
         if (!studioBlocked && state.restartRequired) {
@@ -149,6 +152,18 @@ class DiagnosticsRunner(
                 results += CheckResult(Finding.WIRELESS_DEBUGGING_OFF, Severity.INFO, listOf(names))
             }
         }
+    }
+
+    /** Tipo de red y Firewall de Windows ([WindowsNetworkStatus.checks]); nada si no se pudo consultar. */
+    private suspend fun checkWindows(results: MutableList<CheckResult>, query: suspend () -> WindowsNetworkStatus?) {
+        val status = try {
+            query()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (@Suppress("TooGenericExceptionCaught") _: RuntimeException) {
+            null
+        }
+        status?.let { results += it.checks() }
     }
 
     private suspend fun checkNetwork(results: MutableList<CheckResult>, target: AdbEndpoint) {

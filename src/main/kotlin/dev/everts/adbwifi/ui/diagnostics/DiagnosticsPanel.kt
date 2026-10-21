@@ -22,6 +22,7 @@ import dev.everts.adbwifi.diagnostics.Fix
 import dev.everts.adbwifi.diagnostics.Severity
 import dev.everts.adbwifi.domain.AdbEndpoint
 import dev.everts.adbwifi.ui.LocalNetworkBanner
+import dev.everts.adbwifi.ui.WindowsSettings
 import dev.everts.adbwifi.ui.actions.showPairDialog
 import dev.everts.adbwifi.ui.pairing.PairDialog
 import kotlinx.coroutines.Dispatchers
@@ -98,6 +99,8 @@ class DiagnosticsPanel(private val project: Project) : BorderLayoutPanel(), Disp
         when (fix) {
             Fix.OPEN_LOCAL_NETWORK_SETTINGS -> LocalNetworkBanner.openSettings()
             Fix.RESTART_STUDIO -> LocalNetworkBanner.restartIde()
+            Fix.OPEN_NETWORK_SETTINGS -> WindowsSettings.openNetworkSettings()
+            Fix.OPEN_FIREWALL_SETTINGS -> WindowsSettings.openFirewallSettings()
             Fix.RESTART_ADB, Fix.RESTART_ADB_WITH_MDNS -> {
                 val confirmed = Messages.showYesNoDialog(
                     project,

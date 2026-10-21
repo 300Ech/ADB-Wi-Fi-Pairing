@@ -73,6 +73,12 @@ class PairAndConnectParsersTest {
         "connect-auth-failed, AUTHENTICATION_FAILED",
         "connect-no-route.reconstructed, NO_ROUTE_TO_HOST",
         "connect-authenticate.reconstructed, AUTHENTICATION_FAILED",
+        "connect-refused-windows-en.reconstructed, CONNECTION_REFUSED",
+        "connect-refused-windows-es.reconstructed, CONNECTION_REFUSED",
+        "connect-timeout-windows-en.reconstructed, TIMED_OUT",
+        "connect-timeout-windows-es.reconstructed, TIMED_OUT",
+        "connect-no-route-windows-de.reconstructed, NO_ROUTE_TO_HOST",
+        "connect-network-unreachable-windows-en.reconstructed, NO_ROUTE_TO_HOST",
     )
     fun `connect failures`(case: String, reason: AdbFailureReason) {
         val result = connect(case)

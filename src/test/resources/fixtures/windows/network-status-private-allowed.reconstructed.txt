@@ -1,0 +1,7 @@
+connection	Private	Wi-Fi
+connection	DomainAuthenticated	Conexión de área local
+firewall	Domain	True
+firewall	Private	True
+firewall	Public	False
+rule	Allow	Private, Public
+rule	Allow	Domain

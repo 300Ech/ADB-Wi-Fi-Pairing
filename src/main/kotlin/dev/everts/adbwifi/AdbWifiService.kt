@@ -15,6 +15,7 @@ import dev.everts.adbwifi.application.ControllerProbes
 import dev.everts.adbwifi.diagnostics.AdbServerLog
 import dev.everts.adbwifi.diagnostics.DiagnosticsRunner
 import dev.everts.adbwifi.diagnostics.JvmNetworkProbe
+import dev.everts.adbwifi.diagnostics.PowerShellWindowsNetwork
 import dev.everts.adbwifi.diagnostics.ProbeResult
 import dev.everts.adbwifi.diagnostics.localNetworkBlocked
 import dev.everts.adbwifi.domain.AdbEndpoint
@@ -66,6 +67,11 @@ class AdbWifiService(private val scope: CoroutineScope) {
         network = JvmNetworkProbe,
         rejectedSerials = { AdbServerLog.recentRejections() },
         isMac = SystemInfo.isMac,
+        windowsNetwork = if (SystemInfo.isWindows) {
+            { PowerShellWindowsNetwork.status(runCatching { AdbLocator.locate(null) }.getOrNull()) }
+        } else {
+            null
+        },
     )
 
     /** Lanza trabajo en el scope del servicio (se cancela al descargar el plugin o cerrar la IDE). */

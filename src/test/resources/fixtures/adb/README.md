@@ -46,6 +46,21 @@ reales en cuanto aparezcan.
 | `pair-client-failed` | `Failed: Unable to start pairing client.` |
 | `devices-wireless` | `%-22s %s` + `product:` `model:` `device:` `transport_id:`; estados `unauthorized`, `authorizing` y `no permissions (...)` |
 
+## Windows (`*-windows-<idioma>.reconstructed.*`)
+
+No hay una máquina Windows donde capturarlos. En Windows adb no usa `strerror`: `network_connect`
+(`sysdeps_win32.cpp`) escribe `cannot connect to %s:%s: %s` con `SystemErrorCodeToString`, que devuelve
+el texto de `FormatMessage` en el idioma de Windows seguido del código Winsock: `%s (%d)`. `adb connect`
+lo envuelve en `failed to connect to '%s': %s`. Los textos son los de Windows en cada idioma (tal como
+aparecen en informes de usuarios); el clasificador solo se fía del código entre paréntesis.
+
+| Caso | Código | Causa |
+|------|--------|-------|
+| `connect-refused-windows-en`, `connect-refused-windows-es` | 10061 | `WSAECONNREFUSED` |
+| `connect-timeout-windows-en`, `connect-timeout-windows-es` | 10060 | `WSAETIMEDOUT` (en inglés no dice "timed out") |
+| `connect-no-route-windows-de` | 10065 | `WSAEHOSTUNREACH` |
+| `connect-network-unreachable-windows-en` | 10051 | `WSAENETUNREACH` |
+
 ## Capturas del emulador (mismo adb, emulador `Medium_Phone_API_36.1`)
 
 | Caso | Comando | Exit |

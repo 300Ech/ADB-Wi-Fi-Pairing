@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.condition.DisabledOnOs
 import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
@@ -34,8 +33,10 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTime
 
-/** [CliAdbGateway] contra `fake-adb/adb.sh`, que reproduce las salidas reales guardadas como fixtures. */
-@DisabledOnOs(OS.WINDOWS)
+/**
+ * [CliAdbGateway] contra un adb falso que reproduce las salidas reales guardadas como fixtures:
+ * `fake-adb/adb.sh` o, en Windows, `fake-adb/adb.cmd`.
+ */
 class CliAdbGatewayTest {
 
     @TempDir
@@ -46,9 +47,11 @@ class CliAdbGatewayTest {
 
     @BeforeEach
     fun installFakeAdb() {
-        adb = dir.resolve("adb")
-        Files.copy(requireNotNull(javaClass.getResourceAsStream("/fake-adb/adb.sh")), adb)
-        adb.setPosixFilePermissions(PosixFilePermissions.fromString("rwxr-xr-x"))
+        val windows = OS.WINDOWS.isCurrentOs
+        adb = dir.resolve(if (windows) "adb.cmd" else "adb")
+        val script = if (windows) "/fake-adb/adb.cmd" else "/fake-adb/adb.sh"
+        Files.copy(requireNotNull(javaClass.getResourceAsStream(script)), adb)
+        if (!windows) adb.setPosixFilePermissions(PosixFilePermissions.fromString("rwxr-xr-x"))
         argsFile = dir.resolve("args.txt")
     }
 

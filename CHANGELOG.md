@@ -4,6 +4,19 @@
 
 ## [Unreleased]
 
+### Added
+
+- Windows: Diagnostics warn when Windows treats the network as Public, which blocks discovery, and
+  when Windows Defender Firewall blocks adb or has no rule that allows it, with buttons that open the
+  matching Windows settings. Not yet tried on a real Windows machine.
+
+### Fixed
+
+- Windows: connection errors from adb.exe, which come in the language of Windows, are now explained
+  (refused, timed out, host or network unreachable) instead of showing "adb could not complete the
+  operation".
+- "Network is unreachable" is reported as an unreachable phone instead of an unknown error.
+
 ## [0.1.2] - 2026-10-15
 
 ### Fixed

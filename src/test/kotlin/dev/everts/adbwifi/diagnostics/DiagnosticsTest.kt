@@ -244,4 +244,117 @@ class DiagnosticsTest {
 
         assertEquals(Finding.NO_TARGET, checks.last().finding)
     }
+
+    private fun windowsStatus(name: String, withRules: Boolean = true) =
+        WindowsNetworkParser.parse(
+            requireNotNull(javaClass.getResource("/fixtures/windows/$name.reconstructed.txt")).readText(),
+            withRules,
+        )
+
+    @Test
+    fun `powershell output gives network types firewall profiles and adb rules`() {
+        val status = windowsStatus("network-status-private-allowed")
+
+        assertEquals(
+            listOf(
+                NetworkConnection("Wi-Fi", FirewallProfile.PRIVATE),
+                NetworkConnection("Conexión de área local", FirewallProfile.DOMAIN),
+            ),
+            status.connections,
+        )
+        assertEquals(setOf(FirewallProfile.DOMAIN, FirewallProfile.PRIVATE), status.firewallOn)
+        assertEquals(
+            listOf(
+                FirewallRule(allow = true, setOf(FirewallProfile.PRIVATE, FirewallProfile.PUBLIC)),
+                FirewallRule(allow = true, setOf(FirewallProfile.DOMAIN)),
+            ),
+            status.adbRules,
+        )
+    }
+
+    @Test
+    fun `powershell output with CRLF, any profile and no adb path`() {
+        val output = "connection\tPublic\tEthernet\r\nfirewall\tPublic\tTrue\r\nrule\tBlock\tAny\r\n"
+
+        assertEquals(
+            listOf(FirewallRule(allow = false, FirewallProfile.entries.toSet())),
+            WindowsNetworkParser.parse(output, withRules = true).adbRules,
+        )
+        assertEquals(null, WindowsNetworkParser.parse(output, withRules = false).adbRules)
+        assertEquals(
+            listOf(NetworkConnection("Ethernet", FirewallProfile.PUBLIC)),
+            WindowsNetworkParser.parse(output, withRules = false).connections,
+        )
+    }
+
+    private fun windowsRunner(status: WindowsNetworkStatus?) = DiagnosticsRunner(
+        gatewayProvider = { gateway },
+        network = probe(ProbeResult.OPEN, gateway = null),
+        rejectedSerials = { emptySet() },
+        isMac = false,
+        windowsNetwork = { status },
+    )
+
+    private fun windowsChecks(checks: List<CheckResult>) = checks.filter { it.finding.name.startsWith("WINDOWS_") }
+
+    @Test
+    fun `public network and a firewall block rule are reported on Windows`() = runBlocking {
+        val checks = windowsChecks(windowsRunner(windowsStatus("network-status-public-blocked")).run(state, endpoint))
+
+        assertEquals(
+            listOf(
+                CheckResult(
+                    Finding.WINDOWS_PUBLIC_NETWORK,
+                    Severity.WARNING,
+                    listOf("Wi-Fi"),
+                    listOf(Fix.OPEN_NETWORK_SETTINGS),
+                ),
+                CheckResult(
+                    Finding.WINDOWS_FIREWALL_BLOCKS_ADB,
+                    Severity.ERROR,
+                    listOf("Wi-Fi"),
+                    listOf(Fix.OPEN_FIREWALL_SETTINGS),
+                ),
+            ),
+            checks,
+        )
+    }
+
+    @Test
+    fun `private network with adb allowed is fine on Windows`() = runBlocking {
+        val checks = windowsChecks(windowsRunner(windowsStatus("network-status-private-allowed")).run(state, endpoint))
+
+        assertEquals(listOf(CheckResult(Finding.WINDOWS_FIREWALL_OK, Severity.OK)), checks)
+    }
+
+    @Test
+    fun `missing allow rule only matters where the firewall is on`() = runBlocking {
+        val noRules = WindowsNetworkStatus(
+            connections = listOf(NetworkConnection("Wi-Fi", FirewallProfile.PRIVATE)),
+            firewallOn = setOf(FirewallProfile.PRIVATE),
+            adbRules = emptyList(),
+        )
+
+        val checks = windowsChecks(windowsRunner(noRules).run(AdbWifiState(), null))
+        val firewallOff = windowsChecks(windowsRunner(noRules.copy(firewallOn = emptySet())).run(AdbWifiState(), null))
+
+        assertEquals(listOf(Finding.WINDOWS_FIREWALL_NO_RULE), checks.map { it.finding })
+        assertEquals(listOf("Wi-Fi"), checks.single().args)
+        assertTrue(firewallOff.isEmpty())
+    }
+
+    @Test
+    fun `windows checks are skipped when the query fails or adb is unknown`() = runBlocking {
+        val publicOnly = WindowsNetworkStatus(
+            connections = listOf(NetworkConnection("Wi-Fi", FirewallProfile.PUBLIC)),
+            firewallOn = FirewallProfile.entries.toSet(),
+            adbRules = null,
+        )
+
+        assertTrue(windowsChecks(windowsRunner(null).run(AdbWifiState(), null)).isEmpty())
+        assertEquals(
+            listOf(Finding.WINDOWS_PUBLIC_NETWORK),
+            windowsChecks(windowsRunner(publicOnly).run(AdbWifiState(), null)).map { it.finding },
+        )
+    }
 }

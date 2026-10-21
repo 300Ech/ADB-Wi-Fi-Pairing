@@ -1,6 +1,6 @@
 # GitHub Actions workflow for building, testing, verifying, and preparing plugin release drafts:
 # - Build the plugin ZIP with the 'buildPlugin' task and upload it as a workflow artifact.
-# - Run the 'check' task and upload test reports on failure.
+# - Run the 'check' task on Linux, Windows and macOS and upload test reports on failure.
 # - Run the 'verifyPlugin' task and upload Plugin Verifier reports.
 # - Create a draft GitHub release on non-pull-request runs.
 #
@@ -62,18 +62,23 @@ jobs:
           name: plugin-distribution
           path: ./build/distributions/*.zip
 
-  # Run tests and upload test reports on failure
+  # Run tests on every desktop OS Android Studio supports and upload test reports on failure
   test:
-    name: Test
+    name: Test (${{ matrix.os }})
     needs: [ build ]
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: read
       security-events: write
     steps:
 
-      # Free GitHub Actions Environment Disk Space
+      # Free GitHub Actions Environment Disk Space (the action only supports Linux runners)
       - name: Maximize Build Space
+        if: ${{ runner.os == 'Linux' }}
         uses: jlumbroso/free-disk-space@v2.0.0
         with:
           tool-cache: false
@@ -96,8 +101,9 @@ jobs:
         with:
           cache-read-only: true
 
-      # Run tests
+      # Run tests (bash also on Windows, so the same gradlew script runs everywhere)
       - name: Run Tests
+        shell: bash
         run: ./gradlew check
 
       # Collect Tests Result of failed tests
@@ -105,12 +111,12 @@ jobs:
         if: ${{ failure() }}
         uses: actions/upload-artifact@v7
         with:
-          name: tests-result
+          name: tests-result-${{ matrix.os }}
           path: ${{ github.workspace }}/build/reports/tests
 
-      # Upload detekt findings to GitHub code scanning
+      # Upload detekt findings to GitHub code scanning (once: they do not depend on the OS)
       - name: Upload detekt SARIF
-        if: ${{ always() && github.event_name != 'pull_request' }}
+        if: ${{ always() && github.event_name != 'pull_request' && matrix.os == 'ubuntu-latest' }}
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: build/reports/detekt/detekt.sarif

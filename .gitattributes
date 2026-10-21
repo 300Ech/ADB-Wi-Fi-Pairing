@@ -1,0 +1,6 @@
+# Los runners de Windows hacen checkout con core.autocrlf=true. Los scripts y los fixtures se fijan
+# para que los tests vean los mismos bytes en todos los sistemas.
+gradlew                 text eol=lf
+*.sh                    text eol=lf
+*.cmd                   text eol=crlf
+src/test/resources/**/*.txt text eol=lf

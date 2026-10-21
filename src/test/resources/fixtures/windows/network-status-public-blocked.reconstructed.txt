@@ -1,0 +1,7 @@
+connection	Public	Wi-Fi
+firewall	Domain	True
+firewall	Private	True
+firewall	Public	True
+rule	Block	Public
+rule	Block	Public
+rule	Allow	Private

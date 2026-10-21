@@ -20,7 +20,8 @@ Abre el tool window **ADB Wi-Fi** (barra derecha) o **Tools > ADB Wi-Fi**.
 - **Reconexión automática**: cuando un dispositivo emparejado anuncia un puerto nuevo, o tras
   reiniciarse el servidor adb, el plugin lo vuelve a conectar.
 - **Diagnóstico**: explica por qué no aparece o no conecta un dispositivo (adb, mDNS, permiso Red local
-  de macOS, subred, VPN, puerto, teléfono que rechaza la clave de este ordenador) y ofrece reparaciones.
+  de macOS, red "Pública" y Firewall de Windows, subred, VPN, puerto, teléfono que rechaza la clave de
+  este ordenador) y ofrece reparaciones.
 
 Ajustes en *Settings > Tools > ADB Wi-Fi*.
 
@@ -30,17 +31,27 @@ Reliable wireless debugging for Android Studio.
 - Pair devices manually with the IP, port and code shown on the phone, without relying on mDNS discovery.
 - Assisted pairing with code or QR when mDNS works.
 - Automatic reconnection when the wireless debugging port changes or the phone reboots.
-- Diagnostics that explain why discovery fails (mDNS backend, macOS Local Network permission, client isolation) and how to fix it.
+- Diagnostics that explain why discovery fails (mDNS backend, macOS Local Network permission, Windows Public network and firewall, client isolation) and how to fix it.
 <!-- Plugin description end -->
 
 ## Requisitos
 
 - Android Studio 2026.2.1 (build 262).
 - Android 11 o superior en el dispositivo para emparejamiento inalámbrico.
+- Android SDK Platform-Tools 30 o posterior (el adb que usa Android Studio).
+
+### Plataformas
+
+| Sistema | Estado |
+|---------|--------|
+| macOS | Probado con teléfonos reales. Descubrimiento también por Bonjour (`dns-sd`) y chequeo del permiso Red local. |
+| Windows 10/11 | Soportado, **aún sin probar en una máquina Windows real**. El diagnóstico detecta la red marcada como "Pública" y el Firewall de Windows bloqueando adb.exe (usa PowerShell, incluido en Windows). |
+| Linux | Debería funcionar; sin chequeos específicos ni pruebas con teléfonos. |
 
 ## Desarrollo
 
-Requisitos: JDK 21 (Gradle lo aprovisiona solo con el toolchain si no está instalado).
+Requisitos: JDK 21 (Gradle lo aprovisiona solo con el toolchain si no está instalado). CI
+(`.github/workflows/build.yml`) ejecuta `check` en Linux, Windows y macOS.
 
 ```bash
 ./gradlew check        # compila, tests, detekt y cobertura

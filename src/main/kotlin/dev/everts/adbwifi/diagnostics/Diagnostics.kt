@@ -31,6 +31,10 @@ enum class Finding {
     LOCAL_NETWORK_BLOCKED,
     STUDIO_NO_LOCAL_NETWORK,
     STUDIO_RESTART_REQUIRED,
+    WINDOWS_PUBLIC_NETWORK,
+    WINDOWS_FIREWALL_BLOCKS_ADB,
+    WINDOWS_FIREWALL_NO_RULE,
+    WINDOWS_FIREWALL_OK,
 }
 
 /** Reparaciones que la UI puede ofrecer junto a un resultado. */
@@ -41,6 +45,12 @@ enum class Fix {
     PAIR_AGAIN,
     OPEN_SDK_MANAGER,
     RESTART_STUDIO,
+
+    /** Solo Windows: Configuración > Red e Internet. */
+    OPEN_NETWORK_SETTINGS,
+
+    /** Solo Windows: aplicaciones permitidas del Firewall de Windows. */
+    OPEN_FIREWALL_SETTINGS,
 }
 
 data class CheckResult(
