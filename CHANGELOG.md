@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-10-20
+
 ### Added
 
 - Windows: Diagnostics warn when Windows treats the network as Public, which blocks discovery, and
@@ -63,3 +65,9 @@ First release.
   Wi-Fi (`adb tcpip 5555`).
 - Settings > Tools > ADB Wi-Fi: automatic reconnection, notifications, polling interval, timeouts.
 - English and Spanish.
+
+[Unreleased]: https://github.com/OWNER/myadbwifi/compare/0.1.3...HEAD
+[0.1.3]: https://github.com/OWNER/myadbwifi/compare/0.1.2...0.1.3
+[0.1.2]: https://github.com/OWNER/myadbwifi/compare/0.1.1...0.1.2
+[0.1.1]: https://github.com/OWNER/myadbwifi/compare/0.1.0...0.1.1
+[0.1.0]: https://github.com/OWNER/myadbwifi/commits/0.1.0
